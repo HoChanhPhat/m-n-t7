@@ -1,0 +1,110 @@
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+.navbar { background: #111; color: #fff; padding: 10px; }
+.navbar a { color: #fff; margin-right: 15px; text-decoration: none; }
+.container { padding: 20px; }
+footer { text-align: center; padding: 15px; background: #f2f2f2; }
+body {
+    background-color: #f9f9f9;
+}
+.card img {
+    height: 200px;
+    object-fit: cover;
+}
+.hero-section {
+    background: url("/images/banner.jpg") center/cover no-repeat;
+
+    height: 450px;
+    position: relative;
+}
+
+.hero-section::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45); /* Lớp phủ mờ */
+}
+
+.hero-section > div {
+    position: relative;
+    z-index: 1;
+}
+
+.card img {
+    height: 220px;
+    object-fit: cover;
+}
+.navbar .form-control {
+    width: 250px;
+}
+
+.navbar .badge {
+    font-size: 0.7rem;
+}
+.carousel img {
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.carousel-indicators button {
+    background-color: #555;
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+/* Giới hạn kích thước logo hãng */
+.brand-logo {
+    height: 80px !important;     /* logo nhỏ gọn */
+    width: auto !important;
+    object-fit: contain;
+    margin: 0 15px;              /* giảm khoảng cách giữa các logo */
+    filter: grayscale(40%);
+    transition: all 0.3s ease;
+}
+
+.brand-logo:hover {
+    filter: none;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+.brand-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    scroll-behavior: smooth;
+    padding: 15px;
+    scrollbar-width: none;          /* ẩn thanh cuộn Firefox */
+}
+.brand-scroll::-webkit-scrollbar {
+    display: none;                  /* ẩn thanh cuộn Chrome */
+}
+/* Đảm bảo dropdown hiển thị đầy đủ */
+.dropdown-menu {
+    background: #ffffff !important;
+    color: #000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Đảm bảo các mục bên trong có màu đen */
+.dropdown-menu .dropdown-item {
+    color: #000 !important;
+}
+
+/* Khi hover đổi màu */
+.dropdown-menu .dropdown-item:hover {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+}
+/* XÓA DẤU CHẤM TRẮNG (marker) CỦA LI TRONG NAVBAR */
+.navbar .nav-item {
+    list-style: none !important;
+}
+
+.navbar .nav-item::marker {
+    content: "" !important;
+}
+/* Căn badge trái tim lên cao bằng với giỏ hàng */
+#wishlist-count {
+    transform: translate(-50%, -110%) !important;
+}
