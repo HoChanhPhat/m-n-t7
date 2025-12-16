@@ -22,7 +22,7 @@ class AdminAuthController extends Controller
             $request->session()->regenerate();
 
             // ĐÚNG ROUTE NAME
-            return redirect()->route('dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors(['error' => 'Sai email hoặc mật khẩu']);

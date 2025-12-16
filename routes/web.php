@@ -12,6 +12,8 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\UserOrderController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\VoucherController;
 
 // ===============================
 // HOME
@@ -43,7 +45,7 @@ Route::prefix('cart')->group(function () {
 });
 
 // ===============================
-// CHECKOUT
+// CHECKOUT (yêu cầu login)
 // ===============================
 Route::prefix('checkout')->middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
@@ -69,7 +71,7 @@ Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
 // ===============================
-// ACCOUNT + ORDERS (yêu cầu login)
+// ACCOUNT + ORDERS + VOUCHERS (yêu cầu login)
 // ===============================
 Route::middleware('auth')->group(function () {
 
@@ -78,19 +80,22 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders', [UserOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [UserOrderController::class, 'detail'])->name('user.orders.show');
+
+    // ✅ Voucher của tôi
+    Route::get('/my-vouchers', [VoucherController::class, 'mine'])->name('vouchers.mine');
 });
 
 // ===============================
-// WISHLIST (phải đặt NGOÀI auth để navbar dùng được)
+// WISHLIST (navbar dùng được)
 // ===============================
-Route::get('/wishlist', [WishlistController::class, 'index'])
-    ->name('wishlist.index');
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 
 Route::post('/wishlist/toggle/{id}', [WishlistController::class, 'toggle'])
     ->middleware('auth')
     ->name('wishlist.toggle');
 
-
-use App\Http\Controllers\EventController;
+// ===============================
+// EVENT: VOUCHER NGƯỜI MỚI
+// ===============================
 Route::get('/event/new-user/vouchers', [EventController::class, 'getNewUserVouchers']);
 Route::post('/event/new-user/save/{id}', [EventController::class, 'saveVoucher']);

@@ -135,15 +135,107 @@
 <hr>
 
 
-        {{-- MÃ GIẢM GIÁ – KHÔNG ĐƯỢC NẰM TRONG FORM THANH TOÁN --}}
-        <div class="mb-3">
-            <label class="fw-bold">Mã giảm giá</label>
-            <div class="d-flex">
-                <input type="text" id="coupon_code" class="form-control" placeholder="Nhập mã">
-                <button type="button" class="btn btn-primary ms-2" onclick="applyCoupon()">Áp dụng</button>
-            </div>
-            <small id="coupon_message" class="mt-2 d-block"></small>
-        </div>
+       {{-- MÃ GIẢM GIÁ: chọn voucher dạng scroll --}}
+<div class="mb-3">
+    <label class="fw-bold">Mã giảm giá</label>
+
+   <div class="d-flex gap-2 align-items-stretch">
+    <input type="text"
+           id="coupon_code"
+           class="form-control"
+           placeholder="Chọn voucher hoặc nhập mã"
+           value="{{ session('coupon.code') ?? '' }}">
+
+    <div class="dropdown">
+        <button type="button"
+                class="btn btn-primary dropdown-toggle h-100"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                style="min-width: 160px;">
+            Chọn voucher
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end p-2 shadow"
+            style="width: 360px; max-height: 280px; overflow-y: auto;">
+            @forelse($myVouchers as $uv)
+                @php $c = $uv->coupon; @endphp
+                @if($c)
+                    <li>
+                        <button type="button"
+                                class="dropdown-item rounded py-2"
+                                onclick="selectVoucher('{{ $c->code }}')">
+                            <div class="fw-bold">{{ $c->code }}</div>
+                            <div class="small text-muted">
+                                @if($c->type === 'percent')
+                                    Giảm {{ $c->value }}%
+                                @else
+                                    Giảm {{ number_format($c->value, 0, ',', '.') }} đ
+                                @endif
+                                • Hạn:
+                                {{ $c->end_date ? \Carbon\Carbon::parse($c->end_date)->format('d/m/Y') : 'Không giới hạn' }}
+                            </div>
+                        </button>
+                    </li>
+                @endif
+            @empty
+                <li class="px-2 py-2 text-muted">Bạn chưa có voucher nào.</li>
+            @endforelse
+        </ul>
+    </div>
+</div>
+
+
+    <small id="coupon_message" class="mt-2 d-block"></small>
+</div>
+
+<script>
+document.getElementById("coupon_code")?.addEventListener("keydown", function(e){
+    if (e.key === "Enter") {
+        e.preventDefault();
+        applyCoupon();
+    }
+});
+
+function applyCoupon() {
+    const code = document.getElementById("coupon_code").value.trim();
+
+    if (!code) {
+        const msg = document.getElementById("coupon_message");
+        msg.className = "text-danger";
+        msg.innerHTML = "Vui lòng chọn hoặc nhập mã giảm giá.";
+        return;
+    }
+
+    fetch("{{ route('checkout.applyCoupon') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        body: JSON.stringify({ coupon: code })
+    })
+    .then(res => res.json())
+    .then(data => {
+        let msg = document.getElementById("coupon_message");
+
+        if (data.error) {
+            msg.className = "text-danger";
+            msg.innerHTML = data.error;
+        } else {
+            msg.className = "text-success";
+            msg.innerHTML = data.success;
+
+            document.getElementById("total_amount").innerHTML =
+                new Intl.NumberFormat().format(data.final_total) + " đ";
+        }
+    });
+}
+
+function selectVoucher(code) {
+    document.getElementById("coupon_code").value = code;
+    applyCoupon(); // ✅ click là auto áp dụng
+}
+</script>
+
 
         <script>
         function applyCoupon() {

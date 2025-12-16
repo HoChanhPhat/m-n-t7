@@ -11,4 +11,13 @@ class UserVoucher extends Model
         'coupon_id',
         'is_used',
     ];
+
+    /**
+     * Quan hệ: UserVoucher -> Coupon
+     * 1 user_voucher thuộc về 1 coupon
+     */
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class, 'coupon_id');
+    }
 }

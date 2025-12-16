@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Coupon;
+use App\Models\UserVoucher;
 
 class CheckoutController extends Controller
 {
@@ -15,6 +16,23 @@ class CheckoutController extends Controller
     {
         $cart = session('cart', []);
         $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
+
+        // ✅ Lấy voucher của user (chưa dùng) để đổ vào dropdown scroll
+        $now = now();
+        $myVouchers = UserVoucher::with('coupon')
+            ->where('user_id', auth()->id())
+            ->where('is_used', 0)
+            ->whereHas('coupon', function ($q) use ($now) {
+                $q->where('is_active', 1)
+                  ->where(function ($qq) use ($now) {
+                      $qq->whereNull('start_date')->orWhere('start_date', '<=', $now);
+                  })
+                  ->where(function ($qq) use ($now) {
+                      $qq->whereNull('end_date')->orWhere('end_date', '>=', $now);
+                  });
+            })
+            ->latest()
+            ->get();
 
         // TÍNH GIẢM GIÁ NẾU ĐÃ CÓ SESSION
         $discount = 0;
@@ -33,58 +51,78 @@ class CheckoutController extends Controller
 
         $finalTotal = $total - $discount;
 
-        return view('checkout.index', compact('cart', 'total', 'discount', 'finalTotal'));
+        return view('checkout.index', compact('cart', 'total', 'discount', 'finalTotal', 'myVouchers'));
     }
 
     // ================= ÁP DỤNG MÃ GIẢM GIÁ =================
     public function applyCoupon(Request $request)
-{
-    $coupon = Coupon::where('code', $request->coupon)->first();
+    {
+        $coupon = Coupon::where('code', $request->coupon)->first();
 
-    if (!$coupon) {
-        return response()->json(['error' => 'Mã không tồn tại.']);
+        if (!$coupon) {
+            return response()->json(['error' => 'Mã không tồn tại.']);
+        }
+
+        if (!$coupon->is_active) {
+            return response()->json(['error' => 'Mã giảm giá đang tắt.']);
+        }
+
+        if ($coupon->start_date && $coupon->start_date->isFuture()) {
+            return response()->json(['error' => 'Mã chưa đến ngày sử dụng.']);
+        }
+
+        if ($coupon->end_date && $coupon->end_date->isPast()) {
+            return response()->json(['error' => 'Mã đã hết hạn.']);
+        }
+
+        if ($coupon->limit > 0 && $coupon->used >= $coupon->limit) {
+            return response()->json(['error' => 'Mã đã dùng hết lượt.']);
+        }
+
+        // ✅ Nếu là voucher người mới -> bắt buộc user phải có trong user_vouchers (đã lưu) + là new_user
+        if ($coupon->target_user === 'new_user') {
+            if (!auth()->check()) {
+                return response()->json(['error' => 'Bạn cần đăng nhập để dùng voucher này.']);
+            }
+
+            $user = auth()->user();
+            if (!$user->is_new_user) {
+                return response()->json(['error' => 'Voucher này chỉ dành cho người mới.']);
+            }
+
+            $hasSaved = UserVoucher::where('user_id', $user->id)
+                ->where('coupon_id', $coupon->id)
+                ->where('is_used', 0)
+                ->exists();
+
+            if (!$hasSaved) {
+                return response()->json(['error' => 'Voucher này chưa có trong tài khoản của bạn.']);
+            }
+        }
+
+        // Lưu vào SESSION
+        session()->put('coupon', [
+            'id' => $coupon->id,
+            'code' => $coupon->code,
+            'type' => $coupon->type,
+            'value' => $coupon->value,
+        ]);
+
+        // Tính tổng mới
+        $cart = session('cart', []);
+        $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
+
+        $discount = $coupon->type == 'percent'
+            ? ($total * $coupon->value / 100)
+            : $coupon->value;
+
+        $finalTotal = max(0, $total - $discount);
+
+        return response()->json([
+            'success' => 'Áp dụng mã thành công!',
+            'final_total' => $finalTotal
+        ]);
     }
-
-    if (!$coupon->is_active) {
-        return response()->json(['error' => 'Mã giảm giá đang tắt.']);
-    }
-
-    if ($coupon->start_date && $coupon->start_date->isFuture()) {
-        return response()->json(['error' => 'Mã chưa đến ngày sử dụng.']);
-    }
-
-    if ($coupon->end_date && $coupon->end_date->isPast()) {
-        return response()->json(['error' => 'Mã đã hết hạn.']);
-    }
-
-    if ($coupon->limit > 0 && $coupon->used >= $coupon->limit) {
-        return response()->json(['error' => 'Mã đã dùng hết lượt.']);
-    }
-
-    // Lưu vào SESSION
-    session()->put('coupon', [
-        'id' => $coupon->id,
-        'code' => $coupon->code,
-        'type' => $coupon->type,
-        'value' => $coupon->value,
-    ]);
-
-    // Tính tổng mới
-    $cart = session('cart', []);
-    $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
-
-    $discount = $coupon->type == 'percent'
-        ? ($total * $coupon->value / 100)
-        : $coupon->value;
-
-    $finalTotal = max(0, $total - $discount);
-
-    return response()->json([
-        'success' => 'Áp dụng mã thành công!',
-        'final_total' => $finalTotal
-    ]);
-}
-
 
     // ================= XỬ LÝ ĐẶT HÀNG =================
     public function placeOrder(Request $request)
@@ -164,12 +202,21 @@ class CheckoutController extends Controller
             }
         }
 
-        // TĂNG USED COUPON
+        // TĂNG USED COUPON + ✅ đánh dấu user_vouchers đã dùng
         if (session()->has('coupon')) {
-            $coupon = Coupon::find(session('coupon.id'));
+            $couponId = session('coupon.id');
+            $coupon = Coupon::find($couponId);
+
             if ($coupon) {
                 $coupon->used += 1;
                 $coupon->save();
+            }
+
+            // nếu user có voucher trong tài khoản thì mark is_used = 1
+            if (auth()->check()) {
+                UserVoucher::where('user_id', auth()->id())
+                    ->where('coupon_id', $couponId)
+                    ->update(['is_used' => 1]);
             }
         }
 

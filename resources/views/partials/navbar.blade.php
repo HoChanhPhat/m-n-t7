@@ -66,17 +66,22 @@
                         <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
                     </a>
 
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="{{ url('/account') }}">Thông tin cá nhân</a></li>
-                        <li><a class="dropdown-item" href="{{ url('/orders') }}">Lịch sử đơn hàng</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button class="dropdown-item text-danger">Đăng xuất</button>
-                            </form>
-                        </li>
-                    </ul>
+                   <ul class="dropdown-menu dropdown-menu-end shadow">
+    <li><a class="dropdown-item" href="{{ url('/account') }}">Thông tin cá nhân</a></li>
+
+    <!-- ✅ THÊM DÒNG NÀY -->
+    <li><a class="dropdown-item" href="{{ route('vouchers.mine') }}">Voucher của tôi</a></li>
+
+    <li><a class="dropdown-item" href="{{ url('/orders') }}">Lịch sử đơn hàng</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li>
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button class="dropdown-item text-danger">Đăng xuất</button>
+        </form>
+    </li>
+</ul>
+
                 </li>
                 @endauth
 
