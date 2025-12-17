@@ -186,42 +186,129 @@ function changeImage(src) {
     </div>
 
 
-    {{-- ================= ĐÁNH GIÁ ================= --}}
-    <div class="mt-5">
-        <h4 class="mb-3">Đánh giá sản phẩm</h4>
+  {{-- ================= ĐÁNH GIÁ ================= --}}
+<div class="mt-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">Đánh giá sản phẩm</h4>
 
-        @auth
-        <form action="{{ route('products.review', $product->id) }}" method="POST" class="mb-4 p-3 border rounded">
-            @csrf
-            <label class="fw-bold">Chọn số sao:</label>
-            <select name="rating" class="form-select w-25 mb-2" required>
-                <option value="5">5 sao</option>
-                <option value="4">4 sao</option>
-                <option value="3">3 sao</option>
-                <option value="2">2 sao</option>
-                <option value="1">1 sao</option>
-            </select>
-
-            <textarea name="comment" class="form-control mb-2" rows="3"
-                      placeholder="Viết cảm nhận của bạn..."></textarea>
-
-            <button class="btn btn-primary">Gửi đánh giá</button>
-        </form>
-        @endauth
-
-        @foreach($reviews as $review)
-            <div class="p-3 border rounded mb-3 bg-white">
-                <strong>{{ $review->user->name }}</strong>
-                <span class="text-warning">{{ $review->rating }} ⭐</span>
-                <p class="mb-1">{{ $review->comment }}</p>
-                <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+        <div class="text-end">
+            <div class="fw-bold text-warning">
+                {{ number_format($avgRating, 1) }} / 5 ⭐
             </div>
-        @endforeach
-
-        @if($reviews->count() == 0)
-            <p class="text-muted">Chưa có đánh giá nào.</p>
-        @endif
+            <small class="text-muted">{{ $product->reviews->count() }} đánh giá</small>
+        </div>
     </div>
+
+    {{-- Form đánh giá --}}
+    @auth
+        @if(!empty($canReview) && $canReview === true)
+
+            <form action="{{ route('products.review', $product->id) }}" method="POST"
+                  class="mb-4 p-3 border rounded bg-white shadow-sm">
+                @csrf
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="fw-bold">Chọn số sao:</div>
+
+                    {{-- Star picker --}}
+                    <div id="starPicker" class="d-inline-flex align-items-center gap-1" style="cursor:pointer; user-select:none;">
+                        @for($i=1; $i<=5; $i++)
+                            <span class="star"
+                                  data-value="{{ $i }}"
+                                  style="font-size: 22px; line-height: 1;">
+                                ☆
+                            </span>
+                        @endfor
+                    </div>
+
+                    <span id="starText" class="text-muted ms-2"></span>
+                </div>
+
+                <input type="hidden" name="rating" id="ratingInput" value="5" required>
+
+                <textarea name="comment" class="form-control mb-2" rows="3"
+                          placeholder="Chia sẻ cảm nhận thật của bạn về sản phẩm... (khuyến khích: tình trạng, pin, hiệu năng, đóng gói)"></textarea>
+
+                <div class="d-flex align-items-center justify-content-between">
+                    <small class="text-muted">
+                        * Chỉ khách hàng đã mua & nhận hàng mới được đánh giá.
+                    </small>
+                    <button class="btn btn-primary">
+                        <i class="bi bi-send"></i> Gửi đánh giá
+                    </button>
+                </div>
+            </form>
+
+        @else
+            <div class="alert alert-warning mb-4">
+                🔒 Bạn chỉ có thể đánh giá sau khi đã mua và nhận sản phẩm này.
+            </div>
+        @endif
+    @else
+        <div class="alert alert-info mb-4">
+            🔐 Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để đánh giá sản phẩm.
+        </div>
+    @endauth
+
+
+    {{-- Danh sách review --}}
+    @forelse($reviews as $review)
+        <div class="p-3 border rounded mb-3 bg-white shadow-sm">
+            <div class="d-flex align-items-center justify-content-between">
+                <strong>{{ $review->user->name }}</strong>
+                <span class="text-warning fw-bold">{{ $review->rating }} ⭐</span>
+            </div>
+
+            @if(!empty($review->comment))
+                <p class="mb-1 mt-2">{{ $review->comment }}</p>
+            @endif
+
+            <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+        </div>
+    @empty
+        <p class="text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+    @endforelse
+</div>
+
+{{-- Star picker script (để cuối trang) --}}
+<script>
+(function(){
+    const stars = document.querySelectorAll('#starPicker .star');
+    const input = document.getElementById('ratingInput');
+    const text = document.getElementById('starText');
+
+    let current = parseInt(input.value || '5', 10);
+
+    function render(val){
+        stars.forEach(s => {
+            const v = parseInt(s.dataset.value, 10);
+            s.textContent = (v <= val) ? '★' : '☆';
+        });
+
+        const map = {
+            1: 'Tệ',
+            2: 'Chưa tốt',
+            3: 'Tạm ổn',
+            4: 'Tốt',
+            5: 'Rất hài lòng'
+        };
+        text.textContent = map[val] ? `(${map[val]})` : '';
+    }
+
+    stars.forEach(s => {
+        s.addEventListener('mouseenter', () => render(parseInt(s.dataset.value, 10)));
+        s.addEventListener('click', () => {
+            current = parseInt(s.dataset.value, 10);
+            input.value = current;
+            render(current);
+        });
+    });
+
+    document.getElementById('starPicker').addEventListener('mouseleave', () => render(current));
+    render(current);
+})();
+</script>
+
 
 
     {{-- ================= SẢN PHẨM LIÊN QUAN ================= --}}
