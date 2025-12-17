@@ -27,6 +27,10 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/revenue', [RevenueController::class, 'index'])
         ->name('admin.revenue.index');
 
+        Route::get('/revenue/details/{type}', [RevenueController::class, 'details'])
+    ->name('admin.revenue.details');
+
+
     // PRODUCTS
     Route::resource('products', ProductController::class)
         ->names('admin.products');

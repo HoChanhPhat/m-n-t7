@@ -33,7 +33,8 @@
                 {{-- Số điện thoại --}}
                 <div class="mb-3">
                     <label class="form-label">Số điện thoại</label>
-                    <input type="text" name="customer_phone" class="form-control" required>
+                   <input type="text" name="customer_phone" id="customer_phone" class="form-control" required>
+
                 </div>
 
                 {{-- Địa chỉ --}}
@@ -87,14 +88,28 @@
                         </label>
                     </div>
 
-                    {{-- BOX BANK INFO --}}
-                    <div id="bank-info" class="mt-3 p-3 border rounded bg-light" style="display:none;">
-                        <h6>Thông tin chuyển khoản</h6>
-                        <p class="mb-1">Ngân hàng: Vietcombank</p>
-                        <p class="mb-1">Số tài khoản: 123456789</p>
-                        <p class="mb-1">Tên tài khoản: TechStore</p>
-                        <p class="text-danger small">Nội dung: Thanh toán đơn hàng + SĐT</p>
-                    </div>
+                  {{-- BOX BANK INFO --}}
+<div id="bank-info" class="mt-3 p-3 border rounded bg-light" style="display:none;">
+    <h6 class="fw-bold mb-2">Thông tin chuyển khoản</h6>
+
+    <p class="mb-1">Ngân hàng: <strong>Vietcombank</strong></p>
+    <p class="mb-1">Số tài khoản: <strong>123456789</strong></p>
+    <p class="mb-1">Tên tài khoản: <strong>TechStore</strong></p>
+
+    <hr class="my-2">
+
+    <p class="mb-1">
+        <strong>Nội dung chuyển khoản:</strong>
+        <span id="transfer-content" class="text-danger small d-block mt-1">
+            TECHSTORE_SDT
+        </span>
+    </p>
+
+    <small class="text-muted">
+        Lưu ý: Vui lòng chuyển đúng nội dung để hệ thống/CSKH đối soát nhanh.
+    </small>
+</div>
+
 
                 </div>
 
@@ -343,6 +358,48 @@ districtSelect.addEventListener("change", function () {
   });
 });
 </script>
+
+
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const codRadio = document.getElementById("cod");
+    const bankRadio = document.getElementById("bank");
+    const bankInfo = document.getElementById("bank-info");
+
+    const phoneInput = document.getElementById("customer_phone");
+    const transferContent = document.getElementById("transfer-content");
+
+    function updateTransferContent() {
+        const phone = (phoneInput?.value || "").trim();
+        transferContent.textContent = phone ? `TECHSTORE_${phone}` : "TECHSTORE_SDT";
+    }
+
+    function toggleBankInfo() {
+        if (bankRadio.checked) {
+            bankInfo.style.display = "block";
+            updateTransferContent();
+        } else {
+            bankInfo.style.display = "none";
+        }
+    }
+
+    codRadio.addEventListener("change", toggleBankInfo);
+    bankRadio.addEventListener("change", toggleBankInfo);
+
+    phoneInput.addEventListener("input", function(){
+        if (bankRadio.checked) updateTransferContent();
+    });
+
+    // init
+    toggleBankInfo();
+});
+</script>
+
 
 
 @endsection

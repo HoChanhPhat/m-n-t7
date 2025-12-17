@@ -40,10 +40,10 @@ class CheckoutController extends Controller
         if (session()->has('coupon')) {
             $c = session('coupon');
 
-            if ($c['type'] == 'percent') {
-                $discount = ($total * $c['value']) / 100;
+            if (($c['type'] ?? '') === 'percent') {
+                $discount = ($total * ($c['value'] ?? 0)) / 100;
             } else {
-                $discount = $c['value'];
+                $discount = $c['value'] ?? 0;
             }
 
             if ($discount > $total) $discount = $total;
@@ -102,9 +102,9 @@ class CheckoutController extends Controller
 
         // Lưu vào SESSION
         session()->put('coupon', [
-            'id' => $coupon->id,
-            'code' => $coupon->code,
-            'type' => $coupon->type,
+            'id'    => $coupon->id,
+            'code'  => $coupon->code,
+            'type'  => $coupon->type,
             'value' => $coupon->value,
         ]);
 
@@ -112,14 +112,16 @@ class CheckoutController extends Controller
         $cart = session('cart', []);
         $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
 
-        $discount = $coupon->type == 'percent'
+        $discount = $coupon->type === 'percent'
             ? ($total * $coupon->value / 100)
             : $coupon->value;
+
+        if ($discount > $total) $discount = $total;
 
         $finalTotal = max(0, $total - $discount);
 
         return response()->json([
-            'success' => 'Áp dụng mã thành công!',
+            'success'     => 'Áp dụng mã thành công!',
             'final_total' => $finalTotal
         ]);
     }
@@ -162,10 +164,10 @@ class CheckoutController extends Controller
         if (session()->has('coupon')) {
             $c = session('coupon');
 
-            if ($c['type'] == 'percent') {
-                $discount = ($total * $c['value']) / 100;
+            if (($c['type'] ?? '') === 'percent') {
+                $discount = ($total * ($c['value'] ?? 0)) / 100;
             } else {
-                $discount = $c['value'];
+                $discount = $c['value'] ?? 0;
             }
 
             if ($discount > $total) $discount = $total;
@@ -173,19 +175,37 @@ class CheckoutController extends Controller
 
         $finalTotal = $total - $discount;
 
+        // ✅ PAYMENT + STATUS theo phương thức
+        $paymentMethod = $request->payment_method;
+        $paymentStatus = 'unpaid'; // lúc mới đặt luôn là chưa thanh toán
+
+        $orderStatus = ($paymentMethod === 'BANK')
+            ? 'Chờ xác nhận thanh toán'
+            : 'Chờ xử lý';
+
+        // ✅ Voucher info lưu vào orders
+        $voucherCode = session('coupon.code'); // null nếu không có
+        $discountAmount = $discount;
+
         // TẠO ORDER
         $order = Order::create([
-            'user_id'         => auth()->id(),
-            'customer_name'   => $request->customer_name,
-            'customer_phone'  => $request->customer_phone,
-            'customer_email'  => $request->customer_email,
-            'customer_address'=> $request->customer_address,
-            'payment_method'  => $request->payment_method,
-            'total'           => $finalTotal,
-            'status'          => 'Chờ xử lý',
+            'user_id'          => auth()->id(),
+            'customer_name'    => $request->customer_name,
+            'customer_phone'   => $request->customer_phone,
+            'customer_email'   => $request->customer_email,
+            'customer_address' => $request->customer_address,
+
+            'total'            => $finalTotal,
+
+            'voucher_code'     => $voucherCode,
+            'discount_amount'  => $discountAmount,
+
+            'payment_method'   => $paymentMethod,
+            'payment_status'   => $paymentStatus,
+            'status'           => $orderStatus,
         ]);
 
-        // ORDER ITEMS
+        // ORDER ITEMS + TRỪ KHO
         foreach ($cart as $id => $item) {
             OrderItem::create([
                 'order_id'   => $order->id,
@@ -204,19 +224,23 @@ class CheckoutController extends Controller
 
         // TĂNG USED COUPON + ✅ đánh dấu user_vouchers đã dùng
         if (session()->has('coupon')) {
-            $couponId = session('coupon.id');
-            $coupon = Coupon::find($couponId);
+            $couponArr = session('coupon');
+            $couponId = $couponArr['id'] ?? null;
 
-            if ($coupon) {
-                $coupon->used += 1;
-                $coupon->save();
-            }
+            if ($couponId) {
+                $coupon = Coupon::find($couponId);
 
-            // nếu user có voucher trong tài khoản thì mark is_used = 1
-            if (auth()->check()) {
-                UserVoucher::where('user_id', auth()->id())
-                    ->where('coupon_id', $couponId)
-                    ->update(['is_used' => 1]);
+                if ($coupon) {
+                    $coupon->used += 1;
+                    $coupon->save();
+                }
+
+                // nếu user có voucher trong tài khoản thì mark is_used = 1
+                if (auth()->check()) {
+                    UserVoucher::where('user_id', auth()->id())
+                        ->where('coupon_id', $couponId)
+                        ->update(['is_used' => 1]);
+                }
             }
         }
 

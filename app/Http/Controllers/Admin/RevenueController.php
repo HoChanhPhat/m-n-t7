@@ -50,5 +50,49 @@ class RevenueController extends Controller
             'labels',
             'values'
         ));
+   
+   
+   
+   
     }
+
+
+
+    public function details($type)
+{
+    $today = Carbon::today();
+    $startMonth = Carbon::now()->startOfMonth();
+
+    $q = DB::table('orders as o')
+        ->join('order_items as od', 'od.order_id', '=', 'o.id')
+        ->join('products as p', 'p.id', '=', 'od.product_id')
+        ->where('o.status', 'Đã giao')
+        ->select(
+            'o.id as order_id',
+            'o.created_at',
+            'o.total as order_total',
+            'p.name as product_name',
+            'od.quantity',
+            'od.price',
+            DB::raw('(od.quantity * od.price) as line_total')
+        );
+
+    if ($type === 'today') {
+        $q->whereDate('o.created_at', $today);
+        $title = 'Sản phẩm đã giao hôm nay';
+    } elseif ($type === 'month') {
+        $q->whereBetween('o.created_at', [$startMonth, Carbon::now()]);
+        $title = 'Sản phẩm đã giao trong tháng';
+    } elseif ($type === 'total') {
+        $title = 'Tất cả sản phẩm đã giao';
+    } else {
+        abort(404);
+    }
+
+    $rows = $q->orderByDesc('o.id')->get();
+    $grandTotal = $rows->sum('line_total');
+
+    return view('admin.revenue.details', compact('rows', 'grandTotal', 'title', 'type'));
+}
+
 }
