@@ -5,6 +5,22 @@
 @section('content')
 <div class="container py-4">
 
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <b>Lỗi:</b>
+        <ul class="mb-0">
+            @foreach ($errors->all() as $e)
+                <li>{{ $e }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+@endif
+
+
     <form action="{{ route('checkout.store') }}" method="POST">
         @csrf
 
@@ -87,14 +103,13 @@
                             Chuyển khoản ngân hàng
                         </label>
                     </div>
-
-                  {{-- BOX BANK INFO --}}
+{{-- BOX BANK INFO --}}
 <div id="bank-info" class="mt-3 p-3 border rounded bg-light" style="display:none;">
     <h6 class="fw-bold mb-2">Thông tin chuyển khoản</h6>
 
-    <p class="mb-1">Ngân hàng: <strong>Vietcombank</strong></p>
-    <p class="mb-1">Số tài khoản: <strong>123456789</strong></p>
-    <p class="mb-1">Tên tài khoản: <strong>TechStore</strong></p>
+    <p class="mb-1">Ngân hàng: <strong>BIDV</strong></p>
+    <p class="mb-1">Số tài khoản: <strong id="bank-account">8870258829</strong></p>
+    <p class="mb-1">Tên tài khoản: <strong id="bank-owner">Nguyễn Thành Đồng</strong></p>
 
     <hr class="my-2">
 
@@ -105,10 +120,28 @@
         </span>
     </p>
 
-    <small class="text-muted">
+<div class="d-flex flex-column align-items-center mt-3">
+    <div class="fw-bold mb-2 text-center">
+        Quét QR để chuyển khoản
+    </div>
+
+    <img id="bank-qr"
+         src="bank.png"
+         alt="QR chuyển khoản"
+         class="img-fluid border rounded p-2"
+         style="max-width:220px;">
+
+    <div class="small text-muted mt-2 text-center">
+        QR sẽ tự điền số tiền và nội dung chuyển khoản.
+    </div>
+</div>
+
+
+    <small class="text-muted d-block mt-2">
         Lưu ý: Vui lòng chuyển đúng nội dung để hệ thống/CSKH đối soát nhanh.
     </small>
 </div>
+
 
 
                 </div>
@@ -363,8 +396,6 @@ districtSelect.addEventListener("change", function () {
 
 
 
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const codRadio = document.getElementById("cod");
@@ -374,28 +405,51 @@ document.addEventListener("DOMContentLoaded", function () {
     const phoneInput = document.getElementById("customer_phone");
     const transferContent = document.getElementById("transfer-content");
 
-    function updateTransferContent() {
+    const qrImg = document.getElementById("bank-qr");
+    const totalEl = document.getElementById("total_amount");
+
+    function getTotalNumber() {
+        const raw = (totalEl?.innerText || "").replace(/[^\d]/g, "");
+        return raw ? parseInt(raw, 10) : 0;
+    }
+
+    function updateTransferAndQR() {
         const phone = (phoneInput?.value || "").trim();
-        transferContent.textContent = phone ? `TECHSTORE_${phone}` : "TECHSTORE_SDT";
+        const content = phone ? `TECHSTORE_${phone}` : "TECHSTORE_SDT";
+        transferContent.textContent = content;
+
+        const amount = getTotalNumber();
+        const addInfo = encodeURIComponent(content);
+
+        // BIDV: đổi BANK CODE + số tài khoản của bạn
+        const qrUrl = `https://api.vietqr.io/image/BIDV-8870258829-compact2.png?amount=${amount}&addInfo=${addInfo}&accountName=Nguyen%20Thanh%20Dong`;
+
+        qrImg.src = qrUrl;
+        qrImg.style.display = "block"; // ✅ BẬT HIỂN THỊ
     }
 
     function toggleBankInfo() {
         if (bankRadio.checked) {
             bankInfo.style.display = "block";
-            updateTransferContent();
+            updateTransferAndQR();
         } else {
             bankInfo.style.display = "none";
+            qrImg.style.display = "none";
         }
     }
 
     codRadio.addEventListener("change", toggleBankInfo);
     bankRadio.addEventListener("change", toggleBankInfo);
 
-    phoneInput.addEventListener("input", function(){
-        if (bankRadio.checked) updateTransferContent();
+    phoneInput.addEventListener("input", function () {
+        if (bankRadio.checked) updateTransferAndQR();
     });
 
-    // init
+    // để applyCoupon gọi refresh
+    window.refreshBankQR = function () {
+        if (bankRadio.checked) updateTransferAndQR();
+    };
+
     toggleBankInfo();
 });
 </script>

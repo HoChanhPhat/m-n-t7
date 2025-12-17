@@ -13,38 +13,71 @@
 
     {{-- ===== THÔNG BÁO THEO PHƯƠNG THỨC THANH TOÁN ===== --}}
     @if(($order->payment_method ?? '') === 'BANK')
-        <div class="alert alert-info border rounded p-4">
-            <h5 class="fw-bold mb-3">✅ Bạn đã chọn: Chuyển khoản ngân hàng</h5>
 
-            <p class="mb-2">Vui lòng chuyển khoản theo thông tin dưới đây để shop xác nhận đơn nhanh hơn:</p>
+        @php
+            // Nội dung chuyển khoản
+            $transferText = "TECHSTORE_{$order->id}_{$order->customer_phone}";
+            $qrContent = urlencode($transferText);
+
+            // Thông tin ngân hàng của shop
+            $bankCode = 'BIDV';
+            $bankAccount = '8870258829';
+            $accountName = urlencode('Nguyen Thanh Dong');
+            $amount = (int) ($order->total ?? 0);
+
+            // QR VietQR
+            $qrUrl = "https://api.vietqr.io/image/{$bankCode}-{$bankAccount}-compact2.png?amount={$amount}&addInfo={$qrContent}&accountName={$accountName}";
+        @endphp
+
+        <div class="alert alert-info border rounded p-4">
+            <h5 class="fw-bold mb-2">✅ Bạn đã chọn: Chuyển khoản ngân hàng</h5>
+
+            <p class="mb-2">
+                Vui lòng chuyển khoản theo thông tin dưới đây để shop xác nhận đơn nhanh hơn.
+                Sau khi shop nhận được thanh toán, đơn sẽ được xác nhận trong <b>5–15 phút</b> (giờ hành chính).
+            </p>
 
             <div class="border rounded p-3 bg-light">
-                <p class="mb-1"><strong>Ngân hàng:</strong> Vietcombank</p>
-                <p class="mb-1"><strong>Số tài khoản:</strong> 123456789</p>
-                <p class="mb-1"><strong>Tên tài khoản:</strong> TechStore</p>
+                <p class="mb-1"><strong>Ngân hàng:</strong> {{ $bankCode }}</p>
+                <p class="mb-1"><strong>Số tài khoản:</strong> {{ $bankAccount }}</p>
+                <p class="mb-1"><strong>Tên tài khoản:</strong> Nguyễn Thành Đồng</p>
 
                 <hr class="my-2">
 
                 <p class="mb-1"><strong>Nội dung chuyển khoản:</strong></p>
                 <div class="text-danger fw-bold">
-                    TECHSTORE_{{ $order->id }}_{{ $order->customer_phone }}
+                    {{ $transferText }}
                 </div>
 
                 <small class="text-muted d-block mt-2">
-                    Lưu ý: Nhập đúng nội dung để đối soát nhanh. Sau khi nhận thanh toán, đơn sẽ được chuyển sang trạng thái xử lý.
+                    Lưu ý: Vui lòng nhập <b>đúng nội dung</b> để đối soát nhanh.
                 </small>
+
+                {{-- QR --}}
+                <div class="text-center mt-4">
+                    <p class="fw-bold mb-2">Quét mã QR để chuyển khoản nhanh</p>
+                    <img src="{{ $qrUrl }}"
+                         alt="QR chuyển khoản"
+                         class="img-fluid border rounded p-2"
+                         style="max-width:220px;">
+                    <p class="small text-muted mt-2">
+                        (QR đã tự điền sẵn số tiền và nội dung chuyển khoản)
+                    </p>
+                </div>
             </div>
 
             <div class="mt-3">
                 <span class="badge bg-warning text-dark">
-                    Trạng thái hiện tại: {{ $order->status ?? 'Chờ xác nhận thanh toán' }}
+                    Trạng thái đơn: {{ $order->status ?? 'Chờ xác nhận thanh toán' }}
                 </span>
                 <span class="badge bg-secondary ms-2">
-                    Thanh toán: {{ $order->payment_status ?? 'unpaid' }}
+                    Thanh toán: {{ $order->payment_status ?? 'pending' }}
                 </span>
             </div>
         </div>
+
     @else
+        {{-- COD giữ nguyên --}}
         <div class="alert alert-success border rounded p-4">
             <h5 class="fw-bold mb-2">✅ Bạn đã chọn: Thanh toán khi nhận hàng (COD)</h5>
             <p class="mb-0">
