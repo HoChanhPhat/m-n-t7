@@ -117,3 +117,6 @@ Route::post('/account/update', [AccountController::class, 'update'])->name('acco
 
 Route::post('/account/change-password', [AccountController::class, 'changePassword'])
     ->name('account.changePassword');
+
+
+

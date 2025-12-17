@@ -352,6 +352,12 @@ return [
         'url'  => 'admin/orders',
         'icon' => 'fas fa-fw fa-shopping-cart',
     ],
+[
+    'text' => 'Báo cáo doanh thu',
+    'route' => 'admin.revenue.index',
+    'icon' => 'fas fa-fw fa-chart-line',
+],
+
 
     [
     'text' => 'Mã giảm giá',

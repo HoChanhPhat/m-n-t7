@@ -9,7 +9,8 @@ use App\Http\Controllers\Admin\AdminBrandController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminManageController;
-use App\Http\Controllers\Admin\CouponController; 
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\RevenueController; // ✅ THÊM DÒNG NÀY
 
 // LOGIN
 Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
@@ -21,6 +22,10 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
+
+    // ✅ REVENUE (thêm ở đây)
+    Route::get('/revenue', [RevenueController::class, 'index'])
+        ->name('admin.revenue.index');
 
     // PRODUCTS
     Route::resource('products', ProductController::class)
