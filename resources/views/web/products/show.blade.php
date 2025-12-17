@@ -158,25 +158,55 @@ function changeImage(src) {
                 </li>
             </ul>
 
-            <div class="tab-content border border-top-0 p-3">
-                <div class="tab-pane fade show active" id="desc">
-                    {!! $product->description !!}
-                </div>
+            <div class="tab-pane fade" id="spec">
+    @php
+        $specs = $product->specs;
 
-                <div class="tab-pane fade" id="spec">
-                    @if(!empty($product->specs))
-                        <table class="table table-bordered">
-                            @foreach($product->specs as $k => $v)
-                                <tr><th>{{ $k }}</th><td>{{ $v }}</td></tr>
-                            @endforeach
-                        </table>
-                    @else
-                        <p>Chưa có thông số kỹ thuật.</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
+        // Nếu specs là string JSON thì decode
+        if (is_string($specs)) {
+            $specs = json_decode($specs, true);
+        }
+    @endphp
+
+    @if(is_array($specs) && count($specs))
+        <table class="table table-bordered align-middle">
+            <tbody>
+            @foreach($specs as $key => $value)
+                <tr>
+                    <th style="width: 30%">
+                        {{ ucfirst(str_replace('_',' ', $key)) }}
+                    </th>
+                    <td>
+                        @if(is_array($value))
+                            <table class="table table-sm table-bordered mb-0">
+                                @foreach($value as $k2 => $v2)
+                                    <tr>
+                                        <th style="width: 35%">
+                                            {{ ucfirst(str_replace('_',' ', $k2)) }}
+                                        </th>
+                                        <td>
+                                            @if(is_array($v2))
+                                                {{ json_encode($v2, JSON_UNESCAPED_UNICODE) }}
+                                            @else
+                                                {{ $v2 }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        @else
+                            {{ $value }}
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    @else
+        <p class="text-muted">Chưa có thông số kỹ thuật.</p>
+    @endif
+</div>
+
 
     {{-- ================= ĐÁNH GIÁ ================= --}}
     <div class="mt-5" id="reviews">
