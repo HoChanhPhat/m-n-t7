@@ -62,7 +62,7 @@ class ProductViewController extends Controller
             : [];
 
         // 👉 Trả về view KHÁCH, không phải admin
-        return view('products.all', compact('products', 'brands', 'wishlist'));
+        return view('web.products.all', compact('products', 'brands', 'wishlist'));
     }
 
     // ===============================

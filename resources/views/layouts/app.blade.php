@@ -126,34 +126,33 @@ function addToCart(id) {
 </script>
 
 <script>
-function toggleWishlist(productId, iconElement) {
-    fetch("/wishlist/toggle/" + productId, {
-        method: "POST",
-        headers: {
-            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-            "Accept": "application/json"
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
+function toggleWishlist(productId, el) {
+  fetch(`/wishlist/toggle/${productId}`, {
+    method: "POST",
+    headers: {
+      "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+      "Accept": "application/json",
+    },
+  })
+  .then(r => r.json())
+  .then(data => {
+    // update màu tim nếu click từ icon trên card
+    if (el && el.classList && el.classList.contains('wishlist-icon')) {
+      el.style.color = (data.status === 'added') ? 'red' : '#ccc';
+    }
 
-        // Đổi màu trái tim
-        if (data.status === "added") {
-            iconElement.style.color = "red";
-        } else {
-            iconElement.style.color = "#ccc";
-        }
+    // update badge wishlist nếu bạn có (đặt id="wishlistCount")
+    const badge = document.getElementById("wishlistCount");
+    if (badge) badge.textContent = data.wishlist_count;
 
-        // Cập nhật số lượng trên navbar
-        const badge = document.getElementById("wishlist-count");
-        if (badge) {
-            badge.innerText = data.wishlist_count;
-        }
-    })
-    .catch(err => console.error("Wishlist error:", err));
+    // nếu đang ở trang /wishlist và bấm "Bỏ yêu thích" thì reload
+    if (location.pathname.includes('/wishlist') && data.status === 'removed') {
+      location.reload();
+    }
+  });
 }
-
 </script>
+
 
 <script>
 function buyNow(id) {
@@ -194,3 +193,58 @@ function buyNow(productId) {
 
 </body>
 </html>
+
+
+
+<script>
+(function () {
+  const KEY = "wishlist_product_ids";
+
+  function getWishlist() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch { return []; }
+  }
+
+  function setWishlist(arr) {
+    localStorage.setItem(KEY, JSON.stringify(arr));
+  }
+
+  // 👉 hàm này được gọi từ product-card
+  window.toggleWishlist = function(productId, iconEl) {
+    let list = getWishlist();
+
+    if (list.includes(productId)) {
+      list = list.filter(id => id !== productId);
+      if (iconEl) iconEl.style.color = "#ccc";
+    } else {
+      list.push(productId);
+      if (iconEl) iconEl.style.color = "red";
+    }
+
+    setWishlist(list);
+    updateWishlistBadge();
+  }
+
+  function paintHearts() {
+    const list = getWishlist();
+    document.querySelectorAll(".wishlist-icon[data-product-id]").forEach(el => {
+      const id = Number(el.dataset.productId);
+      el.style.color = list.includes(id) ? "red" : "#ccc";
+    });
+  }
+
+  function updateWishlistBadge() {
+    const list = getWishlist();
+    const badge = document.getElementById("wishlistCount");
+    if (badge) badge.textContent = list.length;
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    paintHearts();
+    updateWishlistBadge();
+  });
+
+  // cho trang wishlist dùng sau
+  window.__getWishlistIds = getWishlist;
+})();
+</script>

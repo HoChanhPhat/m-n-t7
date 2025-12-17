@@ -9,7 +9,8 @@
 @section('content')
 <div class="card">
     <div class="card-body">
-        <table class="table table-bordered table-hover text-white">
+<table class="table table-bordered table-hover">
+
             <thead class="bg-dark">
                 <tr>
                     <th>Mã đơn</th>
@@ -38,7 +39,7 @@
                     </td>
                     <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                     <td>
-                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-info btn-sm">
+                        <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-info btn-sm">
                             Xem
                         </a>
                     </td>

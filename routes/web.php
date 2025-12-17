@@ -23,7 +23,7 @@ Route::get('/', [PageController::class, 'home'])->name('home');
 // ===============================
 // PRODUCT
 // ===============================
-Route::get('/products', [ProductViewController::class, 'index'])->name('products.all');
+Route::get('/products', [ProductViewController::class, 'index'])->name('web.products.all');
 Route::get('/products/search', [ProductViewController::class, 'search'])->name('products.search');
 Route::get('/products/{id}', [ProductViewController::class, 'show'])->name('web.products.show');
 Route::get('/category/{id}', [ProductViewController::class, 'showByCategory'])->name('category.show');
@@ -89,10 +89,9 @@ Route::middleware('auth')->group(function () {
 // WISHLIST (navbar dùng được)
 // ===============================
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-
 Route::post('/wishlist/toggle/{id}', [WishlistController::class, 'toggle'])
-    ->middleware('auth')
     ->name('wishlist.toggle');
+
 
 // ===============================
 // EVENT: VOUCHER NGƯỜI MỚI

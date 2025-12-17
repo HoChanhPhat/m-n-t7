@@ -294,57 +294,55 @@ function selectVoucher(code) {
 <script>
 let provinces = [];
 
-fetch("/vn_provinces.json")
-    .then(res => res.json())
-    .then(data => {
-        provinces = data;
-        let provinceSelect = document.getElementById("province");
+const provinceSelect = document.getElementById("province");
+const districtSelect = document.getElementById("district");
+const wardSelect     = document.getElementById("ward");
 
-        data.forEach(p => {
-            provinceSelect.innerHTML += `<option value="${p.code}">${p.name}</option>`;
-        });
+fetch("{{ asset('vn_provinces.json') }}")
+  .then(res => res.json())
+  .then(data => {
+    provinces = data;
+
+    provinceSelect.innerHTML = `<option value="">-- Chọn tỉnh --</option>`;
+    data.forEach((p, pIndex) => {
+      provinceSelect.innerHTML += `<option value="${pIndex}">${p.name}</option>`;
     });
+  })
+  .catch(err => console.error("Load vn_provinces.json lỗi:", err));
 
-document.getElementById("province").addEventListener("change", function() {
-    let pid = this.value;
-    let districtSelect = document.getElementById("district");
-    let wardSelect = document.getElementById("ward");
+provinceSelect.addEventListener("change", function () {
+  const pIndex = this.value;
 
-    districtSelect.innerHTML = `<option value="">-- Chọn huyện --</option>`;
-    wardSelect.innerHTML = `<option value="">-- Chọn xã --</option>`;
+  districtSelect.innerHTML = `<option value="">-- Chọn huyện --</option>`;
+  wardSelect.innerHTML     = `<option value="">-- Chọn xã --</option>`;
 
-    if (!pid) return;
+  if (pIndex === "") return;
 
-    let p = provinces.find(x => x.code == pid);
+  const p = provinces[Number(pIndex)];
+  if (!p || !p.districts) return;
 
-    p.districts.forEach(d => {
-        districtSelect.innerHTML += `<option value="${d.code}">${d.name}</option>`;
-    });
+  p.districts.forEach((d, dIndex) => {
+    districtSelect.innerHTML += `<option value="${dIndex}">${d.name}</option>`;
+  });
 });
 
-document.getElementById("district").addEventListener("change", function() {
-    let pid = document.getElementById("province").value;
-    let did = this.value;
+districtSelect.addEventListener("change", function () {
+  const pIndex = provinceSelect.value;
+  const dIndex = this.value;
 
-    let wardSelect = document.getElementById("ward");
-    wardSelect.innerHTML = `<option value="">-- Chọn xã --</option>`;
+  wardSelect.innerHTML = `<option value="">-- Chọn xã --</option>`;
 
-    let p = provinces.find(x => x.code == pid);
-    let d = p.districts.find(x => x.code == did);
+  if (pIndex === "" || dIndex === "") return;
 
-    d.wards.forEach(w => {
-        wardSelect.innerHTML += `<option value="${w.code}">${w.name}</option>`;
-    });
+  const p = provinces[Number(pIndex)];
+  const d = p?.districts?.[Number(dIndex)];
+  if (!d || !d.wards) return;
+
+  d.wards.forEach((w, wIndex) => {
+    wardSelect.innerHTML += `<option value="${wIndex}">${w.name}</option>`;
+  });
 });
-
-
-// ======================= BANK INFO TOGGLE ======================
-const bankRadio = document.getElementById("bank");
-const codRadio = document.getElementById("cod");
-const bankInfo = document.getElementById("bank-info");
-
-bankRadio.addEventListener("change", () => bankInfo.style.display = "block");
-codRadio.addEventListener("change", () => bankInfo.style.display = "none");
 </script>
+
 
 @endsection

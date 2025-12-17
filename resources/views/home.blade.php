@@ -48,7 +48,7 @@
 <section class="container my-5">
   <h2 class="text-center mb-4 fw-bold">🆕 Sản phẩm mới nhất</h2>
   <div class="text-center mb-4">
-    <a href="{{ route('products.all') }}" class="btn btn-primary">Xem tất cả sản phẩm</a>
+    <a href="{{ route('web.products.all') }}" class="btn btn-primary">Xem tất cả sản phẩm</a>
   </div>
 
   <div class="row g-4">

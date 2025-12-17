@@ -7,7 +7,7 @@
     <h2 class="mb-4 text-center text-primary">Tất cả sản phẩm</h2>
 
     {{-- ======================= BỘ LỌC ======================= --}}
-    <form method="GET" action="{{ route('products.all') }}" class="mb-4 p-3 border rounded bg-light">
+    <form method="GET" action="{{ route('web.products.all') }}" class="mb-4 p-3 border rounded bg-light">
         <div class="row g-3">
 
             {{-- Tìm kiếm --}}

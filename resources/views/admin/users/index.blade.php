@@ -37,7 +37,7 @@
                     </td>
 
                     <td>
-                        <form method="POST" action="{{ route('users.toggle', $user->id) }}">
+                        <form method="POST" action="{{ route('admin.users.toggle', $user->id) }}">
                             @csrf
                             <button class="btn btn-warning btn-sm">
                                 {{ $user->is_active ? 'Khóa' : 'Mở khóa' }}

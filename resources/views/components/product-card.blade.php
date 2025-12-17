@@ -7,16 +7,18 @@
     {{-- ❤️ ICON WISHLIST (luôn hiện) --}}
     @php $liked = in_array($product->id, $wishlist); @endphp
 
-    <i class="fa fa-heart wishlist-icon"
-       onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
-       style="
-            position: absolute;
-            top: 10px; right: 10px;
-            font-size: 22px;
-            cursor: pointer;
-            color: {{ $liked ? 'red' : '#ccc' }};
-       ">
-    </i>
+  <i class="fa fa-heart wishlist-icon"
+   data-product-id="{{ $product->id }}"
+   onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
+   style="
+        position: absolute;
+        top: 10px; right: 10px;
+        font-size: 22px;
+        cursor: pointer;
+        color: #ccc;
+   ">
+</i>
+
 
     {{-- ẢNH --}}
     <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
