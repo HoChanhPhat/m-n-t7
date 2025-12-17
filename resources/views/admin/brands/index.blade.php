@@ -9,7 +9,7 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <a href="{{ route('brands.create') }}" class="btn btn-primary">
+        <a href="{{ route('admin.brands.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Thêm thương hiệu
         </a>
     </div>
@@ -30,12 +30,12 @@
                     <td>{{ $brand->name }}</td>
                     <td class="d-flex">
 
-                        <a href="{{ route('brands.edit', $brand->id) }}" 
+                        <a href="{{ route('admin.brands.edit', $brand->id) }}" 
                            class="btn btn-warning btn-sm mr-2">
                             Sửa
                         </a>
 
-                        <form action="{{ route('brands.destroy', $brand->id) }}" 
+                        <form action="{{ route('admin.brands.destroy', $brand->id) }}" 
                               method="POST" 
                               onsubmit="return confirm('Xóa thương hiệu này?')">
                             @csrf

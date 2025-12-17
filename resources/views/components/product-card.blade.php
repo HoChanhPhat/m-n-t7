@@ -5,9 +5,9 @@
      onclick="window.location='{{ route('web.products.show', $product->id) }}'">
 
     {{-- ❤️ ICON WISHLIST (luôn hiện) --}}
-    @php $liked = in_array($product->id, $wishlist); @endphp
+   @php $liked = in_array($product->id, $wishlist ?? []); @endphp
 
-  <i class="fa fa-heart wishlist-icon"
+<i class="fa fa-heart wishlist-icon"
    data-product-id="{{ $product->id }}"
    onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
    style="
@@ -15,9 +15,10 @@
         top: 10px; right: 10px;
         font-size: 22px;
         cursor: pointer;
-        color: #ccc;
+        color: {{ $liked ? 'red' : '#ccc' }};
    ">
 </i>
+
 
 
     {{-- ẢNH --}}

@@ -8,7 +8,7 @@
 
 @section('content')
 
-<a href="{{ route('manage.create') }}" class="btn btn-primary mb-3">
+<a href="{{ route('admin.manage.create') }}" class="btn btn-primary mb-3">
     + Tạo Admin phụ
 </a>
 

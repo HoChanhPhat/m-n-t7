@@ -255,10 +255,14 @@ return [
     |
     */
 
-    'use_route_url' => false,
-    'dashboard_url' => 'home',
-    'logout_url' => 'logout',
-    'login_url' => 'login',
+   'use_route_url' => true,
+
+'dashboard_url' => 'admin.dashboard', // hoặc 'admin' tuỳ bạn, không quan trọng
+'logout_url'    => 'admin.logout',    // ✅ QUAN TRỌNG
+'logout_method' => 'POST',
+
+'login_url'     => 'admin.login',     // ✅ để link login admin đúng luôn
+
     'register_url' => 'register',
     'password_reset_url' => 'password/reset',
     'password_email_url' => 'password/email',
@@ -389,11 +393,9 @@ return [
     // ---------- HỆ THỐNG ----------
     ['header' => 'HỆ THỐNG'],
 
-    [
-        'text' => 'Đăng xuất',
-        'url'  => 'logout',
-        'icon' => 'fas fa-fw fa-sign-out-alt',
-    ],
+
+
+
 ],
 
 

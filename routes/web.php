@@ -98,3 +98,11 @@ Route::post('/wishlist/toggle/{id}', [WishlistController::class, 'toggle'])
 // ===============================
 Route::get('/event/new-user/vouchers', [EventController::class, 'getNewUserVouchers']);
 Route::post('/event/new-user/save/{id}', [EventController::class, 'saveVoucher']);
+
+
+
+Route::get('/wishlist/products', [WishlistController::class, 'productsByIds'])
+    ->name('wishlist.productsByIds');
+
+
+

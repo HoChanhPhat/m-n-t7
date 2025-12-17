@@ -65,5 +65,29 @@ class WishlistController extends Controller
         $items = Product::whereIn('id', $ids)->get();
 
         return view('wishlist.index', compact('items'));
+ 
     }
+
+
+    public function productsByIds(Request $request)
+{
+    $ids = collect(explode(',', $request->query('ids', '')))
+        ->filter()
+        ->map(fn($x) => (int)$x)
+        ->unique()
+        ->values()
+        ->all();
+
+    if (empty($ids)) return response()->json([]);
+
+    $products = Product::whereIn('id', $ids)->get();
+
+    // giữ đúng thứ tự theo ids
+    $products = $products->sortBy(fn($p) => array_search($p->id, $ids))->values();
+
+    return response()->json($products);
 }
+
+}
+
+
