@@ -24,7 +24,7 @@ Route::get('/', [PageController::class, 'home'])->name('home');
 // PRODUCT
 // ===============================
 Route::get('/products', [ProductViewController::class, 'index'])->name('web.products.all');
-Route::get('/products/search', [ProductViewController::class, 'search'])->name('products.search');
+Route::get('/products/search', [ProductViewController::class, 'search'])->name('web.products.search');
 Route::get('/products/{id}', [ProductViewController::class, 'show'])->name('web.products.show');
 Route::get('/category/{id}', [ProductViewController::class, 'showByCategory'])->name('category.show');
 

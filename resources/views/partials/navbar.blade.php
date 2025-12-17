@@ -19,7 +19,7 @@
             </ul>
 
             <!-- 🔍 Tìm kiếm -->
-            <form action="{{ route('products.search') }}" method="GET" class="d-flex me-3" style="max-width: 320px; width: 100%;">
+            <form action="{{ route('web.products.search') }}" method="GET" class="d-flex me-3" style="max-width: 320px; width: 100%;">
                 <div class="input-group">
                     <input type="text" name="q" class="form-control form-control-sm"
                         placeholder="Tìm kiếm sản phẩm..." value="{{ request('q') }}">
