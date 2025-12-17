@@ -7,14 +7,15 @@
 <div id="bannerCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
   <div class="carousel-inner">
     <div class="carousel-item active" onclick="openNewUserPopup()" style="cursor:pointer;">
-      <img src="{{ asset('images/banner1.jpg') }}" class="d-block w-100" alt="Banner 1">
+    <img src="{{ asset('images/hehe.jpg') }}" class="d-block w-100 banner-img" alt="Banner 1">
+
     </div>
 
     <div class="carousel-item">
-      <a href="#"><img src="{{ asset('images/banner2.jpg') }}" class="d-block w-100" alt="Banner 2"></a>
+     <a href="#"><img src="{{ asset('images/e.jpg') }}" class="d-block w-100 banner-img" alt="Banner 2"></a>
     </div>
     <div class="carousel-item">
-      <a href="#"><img src="{{ asset('images/banner3.jpg') }}" class="d-block w-100" alt="Banner 3"></a>
+     <a href="#"><img src="{{ asset('images/q.jpg') }}" class="d-block w-100 banner-img" alt="Banner 3"></a>
     </div>
   </div>
 
@@ -62,24 +63,12 @@
 
 <!-- Danh mục sản phẩm -->
 <div class="container mt-5">
-  <h4 class="text-center mb-4 fw-bold">Danh mục sản phẩm</h4>
+  <h4 class="text-center mb-4 fw-bold">Danh mục nổi bật</h4>
   <div class="row">
     <div class="col-md-4 mb-3">
       <a href="{{ route('category.show', 1) }}" class="text-decoration-none text-dark">
         <div class="card h-100 shadow-sm hover-shadow">
-          <img src="{{ asset('images/phone.jpg') }}" class="card-img-top" alt="Điện thoại">
-          <div class="card-body text-center">
-            <h5 class="card-title fw-bold">Điện thoại</h5>
-            <p class="card-text">Mua bán điện thoại cũ chất lượng cao.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-md-4 mb-3">
-      <a href="{{ route('category.show', 2) }}" class="text-decoration-none text-dark">
-        <div class="card h-100 shadow-sm hover-shadow">
-          <img src="{{ asset('images/laptop.jpg') }}" class="card-img-top" alt="Laptop">
+          <img src="{{ asset('images/o.jpg') }}" class="card-img-top" alt="Laptop">
           <div class="card-body text-center">
             <h5 class="card-title fw-bold">Laptop</h5>
             <p class="card-text">Thiết bị đáng tin cậy cho công việc và học tập.</p>
@@ -89,9 +78,21 @@
     </div>
 
     <div class="col-md-4 mb-3">
+      <a href="{{ route('category.show', 2) }}" class="text-decoration-none text-dark">
+        <div class="card h-100 shadow-sm hover-shadow">
+          <img src="{{ asset('images/u.jpg') }}" class="card-img-top" alt="Điện thoại">
+          <div class="card-body text-center">
+            <h5 class="card-title fw-bold">Điện thoại</h5>
+            <p class="card-text">Mua bán điện thoại chất lượng cao.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4 mb-3">
       <a href="{{ route('category.show', 3) }}" class="text-decoration-none text-dark">
         <div class="card h-100 shadow-sm hover-shadow">
-          <img src="{{ asset('images/accessory.jpg') }}" class="card-img-top" alt="Phụ kiện">
+          <img src="{{ asset('images/i.jpg') }}" class="card-img-top" alt="Phụ kiện">
           <div class="card-body text-center">
             <h5 class="card-title fw-bold">Phụ kiện</h5>
             <p class="card-text">Phụ kiện chính hãng, giá rẻ, đa dạng mẫu mã.</p>
@@ -121,6 +122,27 @@
 .brand-scroll::-webkit-scrollbar { display: none; }
 .brand-logo { height: 40px; opacity: 0.9; transition: 0.2s; }
 .brand-logo:hover { opacity: 1; transform: translateY(-2px); }
+
+
+/* ===== FIX BANNER (KHÔNG CẮT ẢNH) ===== */
+#bannerCarousel {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Tự co theo chiều ngang màn hình, không cần height cứng */
+#bannerCarousel .carousel-item {
+  aspect-ratio: 16 / 6;   /* bạn có thể đổi: 16/7, 16/5 tùy banner */
+  background: #0b1b2a;    /* màu nền cho phần trống (nếu có) */
+}
+
+/* Hiện full ảnh, không crop */
+#bannerCarousel .banner-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 </style>
 
 <!-- Thương hiệu nổi bật -->

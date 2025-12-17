@@ -71,3 +71,12 @@ Route::middleware(['admin'])->group(function () {
 
 });
 
+
+
+use App\Http\Controllers\Admin\AdminPasswordController;
+
+Route::get('/change-password', [AdminPasswordController::class, 'show'])
+    ->name('admin.password.show');
+
+Route::post('/change-password', [AdminPasswordController::class, 'update'])
+    ->name('admin.password.update');

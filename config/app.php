@@ -13,12 +13,12 @@ return [
     'asset_url' => env('ASSET_URL'),
 
     'timezone' => 'UTC',
+'locale' => env('APP_LOCALE', 'vi'),
 
-    'locale' => env('APP_LOCALE', 'en'),
+'fallback_locale' => env('APP_FALLBACK_LOCALE', 'vi'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+'faker_locale' => env('APP_FAKER_LOCALE', 'vi_VN'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     'key' => env('APP_KEY'),
 

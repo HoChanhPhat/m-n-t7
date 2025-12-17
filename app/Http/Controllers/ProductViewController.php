@@ -112,7 +112,7 @@ class ProductViewController extends Controller
             ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
 
-        return view('products.by_category', compact('category', 'products', 'wishlist'));
+        return view('web.products.by_category', compact('category', 'products', 'wishlist'));
     }
 
     // ===============================

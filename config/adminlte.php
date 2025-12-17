@@ -379,12 +379,11 @@ return [
     ],
 ],
 
-
-    [
-        'text' => 'Đổi mật khẩu',
-        'url'  => 'admin/change-password',
-        'icon' => 'fas fa-fw fa-lock',
-    ],
+[
+  'text' => 'Đổi mật khẩu',
+  'route' => 'admin.password.show',
+  'icon' => 'fas fa-fw fa-lock',
+],
 
 
 

@@ -106,3 +106,10 @@ Route::get('/wishlist/products', [WishlistController::class, 'productsByIds'])
 
 
 
+
+
+    Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+Route::post('/account/update', [AccountController::class, 'update'])->name('account.update');
+
+Route::post('/account/change-password', [AccountController::class, 'changePassword'])
+    ->name('account.changePassword');
