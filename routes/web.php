@@ -32,6 +32,10 @@ Route::get('/category/{id}', [ProductViewController::class, 'showByCategory'])->
 Route::post('/products/{id}/review', [ProductViewController::class, 'addReview'])
     ->middleware('auth')
     ->name('products.review');
+Route::put('/products/{id}/review', [ProductViewController::class, 'updateReview'])
+    ->middleware('auth')
+    ->name('products.review.update');
+
 
 // ===============================
 // CART

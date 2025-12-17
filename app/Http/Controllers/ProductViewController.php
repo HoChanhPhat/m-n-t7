@@ -1,7 +1,8 @@
-<?php  
+<?php
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
@@ -19,12 +20,10 @@ class ProductViewController extends Controller
     {
         $query = Product::with(['brand', 'category']);
 
-        // Tìm kiếm tên
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Lọc theo giá
         if ($request->min_price) {
             $query->where('price', '>=', $request->min_price);
         }
@@ -33,12 +32,10 @@ class ProductViewController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
-        // Lọc theo thương hiệu
         if ($request->brand) {
             $query->where('brand_id', $request->brand);
         }
 
-        // Sắp xếp
         switch ($request->sort_by) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');
@@ -56,19 +53,17 @@ class ProductViewController extends Controller
         $products = $query->paginate(12);
         $brands = Brand::all();
 
-        // Lấy danh sách ID sản phẩm user đã wishlist
         $wishlist = Auth::check()
             ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
 
-        // 👉 Trả về view KHÁCH, không phải admin
         return view('web.products.all', compact('products', 'brands', 'wishlist'));
     }
 
     // ===============================
     // 2) Chi tiết sản phẩm
     // ===============================
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $product = Product::with([
             'brand',
@@ -77,7 +72,6 @@ class ProductViewController extends Controller
             'images'
         ])->findOrFail($id);
 
-        // sản phẩm liên quan
         $related = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->take(4)
@@ -86,13 +80,38 @@ class ProductViewController extends Controller
         $reviews = $product->reviews()->latest()->get();
         $avgRating = round($product->reviews()->avg('rating'), 1);
 
-        // Lấy wishlist của user
         $wishlist = Auth::check()
             ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
 
+        // ✅ myReview + editMode để show.blade.php dùng cho "Sửa đánh giá"
+        $myReview = Auth::check()
+            ? Review::where('user_id', Auth::id())->where('product_id', $product->id)->first()
+            : null;
+
+        $editMode = $request->query('edit_review') == 1;
+
+        // ✅ chỉ cho tạo đánh giá mới nếu đi từ order đã giao & đúng sản phẩm & chưa từng review
+        $canReview = false;
+        $orderId = $request->query('order_id');
+
+        if (Auth::check() && $orderId) {
+            $hasPurchasedThisOrder = DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->where('orders.id', $orderId)
+                ->where('orders.user_id', Auth::id())
+                ->where('orders.status', 'Đã giao')
+                ->where('order_items.product_id', $product->id)
+                ->exists();
+
+            $alreadyReviewed = $myReview != null;
+
+            $canReview = $hasPurchasedThisOrder && !$alreadyReviewed;
+        }
+
         return view('web.products.show', compact(
-            'product', 'related', 'reviews', 'avgRating', 'wishlist'
+            'product', 'related', 'reviews', 'avgRating', 'wishlist',
+            'canReview', 'myReview', 'editMode'
         ));
     }
 
@@ -107,7 +126,6 @@ class ProductViewController extends Controller
             ->with(['brand', 'category'])
             ->paginate(12);
 
-        // Lấy wishlist
         $wishlist = Auth::check()
             ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
@@ -126,7 +144,6 @@ class ProductViewController extends Controller
             ->orWhere('description', 'LIKE', "%{$query}%")
             ->paginate(12);
 
-        // Lấy wishlist
         $wishlist = Auth::check()
             ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
             : [];
@@ -135,22 +152,90 @@ class ProductViewController extends Controller
     }
 
     // ===============================
-    // 5) Gửi đánh giá
+    // 5) Tạo đánh giá (mới)
     // ===============================
     public function addReview(Request $request, $id)
     {
+        abort_unless(Auth::check(), 403);
+
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string'
+            'comment' => 'nullable|string|max:1000',
+            'order_id' => 'required|integer'
         ]);
 
+        $orderId = $request->order_id;
+
+        $hasPurchasedThisOrder = DB::table('orders')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.id', $orderId)
+            ->where('orders.user_id', Auth::id())
+            ->where('orders.status', 'Đã giao')
+            ->where('order_items.product_id', $id)
+            ->exists();
+
+        if (!$hasPurchasedThisOrder) {
+            return back()->with('error', 'Bạn chỉ có thể đánh giá sản phẩm trong đơn đã giao.');
+        }
+
+        $alreadyReviewed = Review::where('user_id', Auth::id())
+            ->where('product_id', $id)
+            ->exists();
+
+        if ($alreadyReviewed) {
+            return back()->with('error', 'Bạn đã đánh giá sản phẩm này rồi.');
+        }
+
         Review::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'product_id' => $id,
-            'rating' => $request->rating,
+            'rating' => (int) $request->rating,
             'comment' => $request->comment
         ]);
 
         return back()->with('success', 'Đánh giá của bạn đã được gửi!');
+    }
+
+    // ===============================
+    // 6) Sửa đánh giá
+    // ===============================
+    public function updateReview(Request $request, $id)
+    {
+        abort_unless(Auth::check(), 403);
+
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+            'order_id' => 'required|integer'
+        ]);
+
+        $orderId = $request->order_id;
+
+        $ok = DB::table('orders')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.id', $orderId)
+            ->where('orders.user_id', Auth::id())
+            ->where('orders.status', 'Đã giao')
+            ->where('order_items.product_id', $id)
+            ->exists();
+
+        if (!$ok) {
+            return back()->with('error', 'Bạn chỉ có thể sửa đánh giá của sản phẩm trong đơn đã giao.');
+        }
+
+        $review = Review::where('user_id', Auth::id())
+            ->where('product_id', $id)
+            ->first();
+
+        if (!$review) {
+            return back()->with('error', 'Không tìm thấy đánh giá để sửa.');
+        }
+
+        $review->update([
+            'rating' => (int) $request->rating,
+            'comment' => $request->comment
+        ]);
+
+        return back()->with('success', 'Đã cập nhật đánh giá!');
     }
 }
