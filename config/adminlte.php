@@ -363,11 +363,7 @@ return [
     // ---------- CẤU HÌNH TÀI KHOẢN ----------
     ['header' => 'TÀI KHOẢN NGƯỜI DÙNG'],
 
-    [
-        'text' => 'Hồ sơ cá nhân',
-        'url'  => 'admin/profile',
-        'icon' => 'fas fa-fw fa-user-circle',
-    ],
+ 
 [
     'text' => 'Quản lý Admin phụ',
     'icon' => 'fas fa-fw fa-user-shield',
@@ -389,9 +385,6 @@ return [
         'url'  => 'admin/change-password',
         'icon' => 'fas fa-fw fa-lock',
     ],
-
-    // ---------- HỆ THỐNG ----------
-    ['header' => 'HỆ THỐNG'],
 
 
 

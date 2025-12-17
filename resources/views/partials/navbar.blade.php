@@ -15,7 +15,7 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('web.products.all') }}">Sản phẩm</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/seller/center') }}">Người bán</a></li>
+                
             </ul>
 
             <!-- 🔍 Tìm kiếm -->
