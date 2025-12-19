@@ -3,11 +3,11 @@
     <div class="row">
       {{-- Cột 1 --}}
       <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
-        <h5 class="text-uppercase fw-bold text-primary">TECHUSED</h5>
-        <p>Chuyên mua bán các thiết bị điện tử đã qua sử dụng.</p>
+        <h5 class="text-uppercase fw-bold text-primary">TECHSTORE</h5>
+        <p>Chuyên mua bán các thiết bị, đồ điện tử uy tín.</p>
         <p><i class="fas fa-map-marker-alt me-2"></i>123 Đường ABC, TP.HCM</p>
         <p><i class="fas fa-phone-alt me-2"></i>0901.234.567</p>
-        <p><i class="fas fa-envelope me-2"></i>support@techused.vn</p>
+        <p><i class="fas fa-envelope me-2"></i>support@techstore.vn</p>
       </div>
 
       {{-- Cột 2: Liên kết nhanh --}}
@@ -38,7 +38,7 @@
           <div class="member-popup">
             <div><a href="https://www.facebook.com/share/1BuFvaCT4k/" target="_blank">Trương Duy Thành Đạt</a></div>
             <div><a href="https://www.facebook.com/share/1F1zB5Zcpb/" target="_blank">Hồ Chanh Phát</a></div>
-            <div><a href="https://www.facebook.com/share/1ArFyZpS2X/" target="_blank">Đặng Hữu Nghĩa</a></div>
+         
             <div><a href="https://www.facebook.com/share/1ZgAaAQ6qp/" target="_blank">Nguyễn Quốc Bảo</a></div>
             <div><a href="https://www.facebook.com/nguyen.thanh.ong.612693/?locale=vi_VN" target="_blank">Nguyễn Thành Đồng</a></div>
           </div>
@@ -50,7 +50,7 @@
           <div class="member-popup">
             <div><a href="#" target="_blank">Trương Duy Thành Đạt</a></div>
             <div><a href="#" target="_blank">Hồ Chanh Phát</a></div>
-            <div><a href="#" target="_blank">Đặng Hữu Nghĩa</a></div>
+        
             <div><a href="#" target="_blank">Nguyễn Quốc Bảo</a></div>
             <div><a href="#" target="_blank">Nguyễn Thành Đồng</a></div>
           </div>
@@ -74,7 +74,7 @@
           <div class="member-popup">
             <div><a href="#" target="_blank">Trương Duy Thành Đạt</a></div>
             <div><a href="https://github.com/lemon180205" target="_blank">Hồ Chanh Phát</a></div>
-            <div><a href="#" target="_blank">Đặng Hữu Nghĩa</a></div>
+        
             <div><a href="#" target="_blank">Nguyễn Quốc Bảo</a></div>
             <div><a href="https://github.com/NguyenThanhDong13" target="_blank">Nguyễn Thành Đồng</a></div>
           </div>
