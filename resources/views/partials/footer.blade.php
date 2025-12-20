@@ -76,7 +76,7 @@
             <div><a href="https://github.com/lemon180205" target="_blank">Hồ Chanh Phát</a></div>
         
             <div><a href="#" target="_blank">Nguyễn Quốc Bảo</a></div>
-            <div><a href="https://github.com/NguyenThanhDong13" target="_blank">Nguyễn Thành Đồng</a></div>
+            <div><a href="https://github.com/NguyenThanhDong13" target="_blank">Nguyễn Đồng</a></div>
           </div>
         </div>
       </div>
